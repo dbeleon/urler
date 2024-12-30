@@ -1,4 +1,4 @@
-module github.com/dbeleon/libs
+module github.com/dbeleon/urler/libs
 
 go 1.23.4
 
