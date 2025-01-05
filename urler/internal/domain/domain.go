@@ -2,20 +2,29 @@ package domain
 
 import (
 	"context"
+
 	"github.com/dbeleon/urler/libs/log"
+	"github.com/dbeleon/urler/urler/internal/domain/models"
 )
 
+type Repository interface {
+	AddUser(models.User) (*models.User, error)
+	SaveUrl(url models.Url) (*models.Url, error)
+	GetUrl(short string) (*models.Url, error)
+}
+
 type Config struct {
+	Repo Repository
 }
 
 type Model struct {
-	config Config
+	repo Repository
 }
 
 func New(conf Config) *Model {
 	log.Debug("creating new model")
 	return &Model{
-		config: conf,
+		repo: conf.Repo,
 	}
 }
 

@@ -25,5 +25,8 @@ go.work.sum
 .env
 
 .vscode
+.DS_STORE
 .idea
 bin
+deployments/data
+__debug*

@@ -10,12 +10,10 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-// server это gRPC сервер с метриками и трейсами
 type server struct {
 	srv *grpc.Server
 }
 
-// New создает новый server
 func New() *server {
 	s := grpc.NewServer(
 		grpc.UnaryInterceptor(
@@ -56,4 +54,13 @@ func (s *server) GetServiceInfo() map[string]grpc.ServiceInfo {
 // Serve will return a non-nil error unless Stop or GracefulStop is called.
 func (s *server) Serve(lis net.Listener) error {
 	return s.srv.Serve(lis)
+}
+
+// Stop stops the gRPC server. It immediately closes all open
+// connections and listeners.
+// It cancels all active RPCs on the server side and the corresponding
+// pending RPCs on the client side will get notified by connection
+// errors.
+func (s *server) GracefulStop() {
+	s.srv.GracefulStop()
 }

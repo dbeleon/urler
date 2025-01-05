@@ -1,0 +1,14 @@
+env: "devel"
+
+grpc_server:
+  address: ":8080"
+
+http_server:
+  address: ":8000"
+
+tnt:
+  address: "localhost:3301"
+  reconnect: 5
+  reconnects: 5
+  user: "urls_user"
+  password: "dev"

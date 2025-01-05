@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 const defaultConfigPath = "/etc/urler/config.yaml"
@@ -12,11 +13,25 @@ const defaultConfigPath = "/etc/urler/config.yaml"
 type Config struct {
 	Env             string `yaml:"env" env-default:"prod"`
 	ShutdownTimeout int    `yaml:"shutdown_timeout" env-default:"5"`
+	GRPCServer      `yaml:"grpc_server"`
 	HTTPServer      `yaml:"http_server"`
+	Tnt             `yaml:"tnt"`
 }
 
 type HTTPServer struct {
+	Address string `yaml:"address" env-default:":8000"`
+}
+
+type GRPCServer struct {
 	Address string `yaml:"address" env-default:":8080"`
+}
+
+type Tnt struct {
+	Address       string `yaml:"address"`
+	Reconnect     int    `yaml:"reconnect"`
+	MaxReconnects int    `yaml:"reconnects"`
+	User          string `yaml:"user"`
+	Password      string `yaml:"password"`
 }
 
 func MustLoad() *Config {

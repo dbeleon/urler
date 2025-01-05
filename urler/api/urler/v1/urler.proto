@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package github.com.dbeleon.urler;
+
+option go_package="github.com/dbeleon/urler/urler/pkg/urler/v1;urler";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+
+service UrlerService {
+  rpc AddUser(AddUserRequest) returns (AddUserResponse){
+    option (google.api.http) = {
+      post: "/v1/user"
+      body: "*"
+    };
+  }
+  rpc MakeUrl(MakeUrlRequest) returns (MakeUrlResponse) {
+    option (google.api.http) = {
+      post: "/v1/url"
+      body: "*"
+    };
+  }
+  rpc GetUrl(GetUrlRequest) returns (GetUrlResponse) {
+    option (google.api.http) = {
+      get: "/v1/url"
+    };
+  }
+}
+
+message AddUserRequest {
+  string name = 1 [(validate.rules).string = {
+    pattern:   "^[A-Za-z0-9-_]+[A-Za-z0-9-_ ]*$",
+    max_bytes: 256,
+  }];
+  string email = 2 [(validate.rules).string.email = true];
+}
+
+message AddUserResponse {
+  int64 user = 1;
+}
+
+message MakeUrlRequest {
+  int64 user = 1;
+  string url = 2;
+}
+
+message MakeUrlResponse {
+  string url = 1;
+}
+
+message GetUrlRequest {
+  string url = 1;
+}
+
+message GetUrlResponse {
+  string url = 1;
+}
