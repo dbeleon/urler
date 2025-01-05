@@ -37,11 +37,11 @@ func main() {
 	log.Info("app started")
 
 	tntConf := tnt.Config{
-		Address:       cfg.Tnt.Address,
-		Reconnect:     time.Duration(cfg.Tnt.Reconnect) * time.Second,
-		MaxReconnects: cfg.Tnt.MaxReconnects,
-		User:          cfg.Tnt.User,
-		Password:      cfg.Tnt.Password,
+		Address:       cfg.UrlsTntDB.Address,
+		Reconnect:     time.Duration(cfg.UrlsTntDB.Reconnect) * time.Second,
+		MaxReconnects: cfg.UrlsTntDB.MaxReconnects,
+		User:          cfg.UrlsTntDB.User,
+		Password:      cfg.UrlsTntDB.Password,
 	}
 	tntClient := tnt.New(tntConf)
 

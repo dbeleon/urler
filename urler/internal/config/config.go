@@ -15,7 +15,8 @@ type Config struct {
 	ShutdownTimeout int    `yaml:"shutdown_timeout" env-default:"5"`
 	GRPCServer      `yaml:"grpc_server"`
 	HTTPServer      `yaml:"http_server"`
-	Tnt             `yaml:"tnt"`
+	UrlsTntDB       `yaml:"urls_tnt"`
+	QRTntQueue      `yaml:"qr_tnt"`
 }
 
 type HTTPServer struct {
@@ -26,7 +27,15 @@ type GRPCServer struct {
 	Address string `yaml:"address" env-default:":8080"`
 }
 
-type Tnt struct {
+type UrlsTntDB struct {
+	Address       string `yaml:"address"`
+	Reconnect     int    `yaml:"reconnect"`
+	MaxReconnects int    `yaml:"reconnects"`
+	User          string `yaml:"user"`
+	Password      string `yaml:"password"`
+}
+
+type QRTntQueue struct {
 	Address       string `yaml:"address"`
 	Reconnect     int    `yaml:"reconnect"`
 	MaxReconnects int    `yaml:"reconnects"`
