@@ -6,6 +6,7 @@ services:
    restart: always
    depends_on:
      - urls-tnt
+     - queue-tnt
    ports:
      - 8080:8080
      - 8000:8000
@@ -25,7 +26,7 @@ services:
       - 3301:3301
       - 3303:3303
     volumes:
-      - ./data/tnt-data:/var/lib/tarantool
+      - ./data/urls-tnt-data:/var/lib/tarantool
     environment:
       TARANTOOL_LISTEN: 0.0.0.0:3301
       TARANTOOL_WAL_DIR: /var/lib/tarantool
@@ -35,4 +36,24 @@ services:
       USER_PASS: dev
     build:
       dockerfile: build/urls-tnt.Dockerfile
+      context: ../.
+
+  queue-tnt:
+    image: queue-tnt:latest
+    container_name: queue-tnt
+    restart: always
+    ports:
+      - 3401:3301
+      - 3403:3303
+    volumes:
+      - ./data/queue-tnt-data:/var/lib/tarantool
+    environment:
+      TARANTOOL_LISTEN: 0.0.0.0:3301
+      TARANTOOL_WAL_DIR: /var/lib/tarantool
+      TARANTOOL_MEMTX_DIR: /var/lib/tarantool
+      TARANTOOL_VINYL_DIR: /var/lib/tarantool
+      TARANTOOL_ADMIN_ADDR: 0.0.0.0:3303
+      USER_PASS: dev
+    build:
+      dockerfile: build/queue-tnt.Dockerfile
       context: ../.
