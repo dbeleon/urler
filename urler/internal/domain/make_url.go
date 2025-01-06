@@ -43,6 +43,16 @@ func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, e
 		return "", e
 	}
 
+	// TODO: use transactional outbox pattern
+	if res.Short == url.Short {
+		_, err = m.qrQueue.Publish(models.QRTask{
+			Short: res.Short,
+		})
+		if err != nil {
+			log.Error("publish to qr queue failed", zap.Error(err))
+		}
+	}
+
 	return res.Short, nil
 }
 

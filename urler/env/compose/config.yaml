@@ -14,8 +14,12 @@ urls_tnt:
   password: "dev"
 
 qr_tnt:
-  address: "qr-tnt:3301"
+  address: "queue-tnt:3301"
   reconnect: 5
   reconnects: 5
   user: "qr_user"
   password: "dev"
+  prior: 0
+  ttl: 0
+  delay: 0
+  ttr: 300

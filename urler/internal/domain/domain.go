@@ -13,18 +13,25 @@ type Repository interface {
 	GetUrl(short string) (*models.Url, error)
 }
 
+type Queue interface {
+	Publish(models.QRTask) (int, error)
+}
+
 type Config struct {
-	Repo Repository
+	Repo    Repository
+	QRQueue Queue
 }
 
 type Model struct {
-	repo Repository
+	repo    Repository
+	qrQueue Queue
 }
 
 func New(conf Config) *Model {
 	log.Debug("creating new model")
 	return &Model{
-		repo: conf.Repo,
+		repo:    conf.Repo,
+		qrQueue: conf.QRQueue,
 	}
 }
 

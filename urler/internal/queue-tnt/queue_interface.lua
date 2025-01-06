@@ -82,7 +82,7 @@ end
 
 function qr_prune()
     queue.tube.qr_queue:truncate()
-    
+
     log.info('qr queue truncated')
 end
 

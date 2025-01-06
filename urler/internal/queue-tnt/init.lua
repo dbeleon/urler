@@ -6,6 +6,11 @@ local interface = require('interface')
 local queue_interface = require('queue_interface')
 local queue = require('queue')
 
+queue.cfg = {
+    in_replicaset = true,
+    ttr = 4 * 365 * 24 * 60 * 60
+}
+
 box.cfg {
     listen    = os.getenv('TARANTOOL_LISTEN'),
     wal_dir   = os.getenv('TARANTOOL_WAL_DIR'),
@@ -43,7 +48,7 @@ schema.init_queue(queue_cfg)
 schema.init_functions(interface.get())
 schema.init_functions(queue_interface.get())
 
-grants.init_role(role_name, { interface.get() })
+grants.init_role(role_name, { interface.get(), queue_interface.get() })
 grants.makegrants(user_name, role_name, os.getenv('USER_PASS'))
 
 log.info('init completed')

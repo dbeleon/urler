@@ -7,8 +7,17 @@ type User struct {
 }
 
 type Url struct {
+	Id    int64
 	User  int64
 	Long  string
 	Short string
-	Qr    []byte
+	QR    []byte
+}
+
+type QRTask struct {
+	Short    string
+	Priority uint
+	TTL      uint
+	Delay    uint
+	TTR      uint
 }

@@ -41,6 +41,10 @@ type QRTntQueue struct {
 	MaxReconnects int    `yaml:"reconnects"`
 	User          string `yaml:"user"`
 	Password      string `yaml:"password"`
+	Priority      uint   `yaml:"prior"`
+	TTL           uint   `yaml:"ttl"`
+	Delay         uint   `yaml:"delay"`
+	TTR           uint   `yaml:"ttr"`
 }
 
 func MustLoad() *Config {

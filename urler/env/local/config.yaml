@@ -19,3 +19,7 @@ qr_tnt:
   reconnects: 5
   user: "qr_user"
   password: "dev"
+  prior: 0
+  ttl: 0
+  delay: 0
+  ttr: 300
