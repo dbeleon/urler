@@ -11,7 +11,7 @@ import (
 	"github.com/dbeleon/urler/qrer/internal/queue"
 
 	"github.com/yeqown/go-qrcode/v2"
-	"github.com/yeqown/go-qrcode/writer/standard"
+	"github.com/yeqown/go-qrcode/writer/compressed"
 	"go.uber.org/zap"
 )
 
@@ -87,10 +87,15 @@ func (m *Model) Worker() {
 			continue
 		}
 
+		option := compressed.Option{
+			Padding:   4, // padding pixels around the qr code.
+			BlockSize: 1, // block pixels which represents a bit data.
+		}
+
 		data := make([]byte, 0, 100*1024)
 		buf := bytes.NewBuffer(data)
 		wc := &WrCl{Buf: buf}
-		w := standard.NewWithWriter(wc)
+		w := compressed.NewWithWriter(wc, &option)
 		if err = qrc.Save(w); err != nil {
 			log.Error("could not save image", zap.Error(err))
 			continue
@@ -101,22 +106,6 @@ func (m *Model) Worker() {
 			log.Error("could not update url qr", zap.Error(err))
 			//continue
 		}
-
-		// option := compressed.Option{
-		// 	Padding:   4, // padding pixels around the qr code.
-		// 	BlockSize: 1, // block pixels which represents a bit data.
-		// }
-
-		// writer, err := compressed.New("../assets/qrcode_small.png", &option)
-		// if err != nil {
-		// 	log.Error("QR code compressed.New write failed", zap.Error(err))
-		// 	continue
-		// }
-
-		// if err := qrc.Save(writer); err != nil {
-		// 	log.Error("could not save image", zap.Error(err))
-		// 	continue
-		// }
 
 		err = m.qrQueue.Ack(task.Id)
 		if err != nil {
