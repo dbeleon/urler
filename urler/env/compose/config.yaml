@@ -1,4 +1,5 @@
 env: "devel"
+host: "urler"
 
 grpc_server:
   address: ":8080"

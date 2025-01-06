@@ -18,16 +18,16 @@ var (
 
 func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, error) {
 	hashSize := 8
-	url := models.Url{
+	urlModel := models.Url{
 		User:  user,
 		Long:  long,
 		Short: GenHash(hashSize),
 	}
-	res, err := m.repo.SaveUrl(url)
+	res, err := m.repo.SaveUrl(urlModel)
 	for range 3 {
 		if errors.Is(err, repository.ErrShortUrlCollision) {
-			url.Short = GenHash(hashSize)
-			res, err = m.repo.SaveUrl(url)
+			urlModel.Short = GenHash(hashSize)
+			res, err = m.repo.SaveUrl(urlModel)
 			continue
 		}
 
@@ -43,13 +43,19 @@ func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, e
 		return "", e
 	}
 
-	// TODO: use transactional outbox pattern
-	if res.Short == url.Short {
-		_, err = m.qrQueue.Publish(models.QRTask{
-			Short: res.Short,
-		})
+	// TODO: use transactional outbox
+	if res.Short == urlModel.Short {
 		if err != nil {
-			log.Error("publish to qr queue failed", zap.Error(err))
+			log.Error("url path join failed", zap.Error(err))
+		} else {
+			_, err = m.qrQueue.Publish(models.QRTask{
+				Host:  m.host,
+				Short: res.Short,
+				TTR:   10,
+			})
+			if err != nil {
+				log.Error("publish to qr queue failed", zap.Error(err))
+			}
 		}
 	}
 

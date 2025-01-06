@@ -5,7 +5,8 @@ local exports   = {}
 local interface = {
     'user_add',
     'url_add',
-    'url_get'
+    'url_get',
+    'qr_update',
 }
 
 exports.get = function()
@@ -35,8 +36,7 @@ end
 function url_add(req)
     log.info('add url user=%s long=%s short=%s', req.user_id, req.long, req.short)
 
-    if req ~= nil
-        and req.user_id ~= nil and type(req.user_id) == 'number'
+    if req.user_id ~= nil and type(req.user_id) == 'number'
         and req.long ~= nil and type(req.long) == 'string'
         and req.short ~= nil and type(req.short) == 'string'
     then
@@ -53,7 +53,7 @@ function url_add(req)
         local res = box.space.url.index.long_index:select(req.long)
         -- log.info("long url found: %s", res)
         if #res == 0 then
-            local tpl = box.space.url:insert({ nil, req.user_id, req.long, req.short })
+            local tpl = box.space.url:insert({ nil, req.user_id, req.long, req.short, nil })
             -- log.info("url added=%s", tpl)
             req.id = tpl[1]
         else
@@ -70,6 +70,37 @@ function url_add(req)
     error('bad_request')
 end
 
+function qr_update(req)
+    log.info('update qr code short=%s ', req.short)
+    log.info('qr type=%s', type(req.qr))
+    if req.short ~= nil and type(req.short) == 'string'
+        and req.qr ~= nil and type(req.qr) == 'string'
+    then
+        local res = box.space.url.index.short_index:select(req.short)
+        -- log.info("short url found: %s", res)
+        if #res == 0 then
+            return {
+                code = 1,
+                message = 'url not found'
+            }
+        end
+
+        local tpl = box.space.url:update({res[1][1]},{{'=', 5, req.qr}})
+
+        if #tpl == 0 then
+            return {
+                code = 2,
+                message = 'url id not found'
+            }
+        end
+
+        log.info("url updated=%s", tpl)
+
+        return {code = 0}
+    end
+
+    error('bad_request')
+end
 
 function url_get(req)
     log.info('get url %s', req) 

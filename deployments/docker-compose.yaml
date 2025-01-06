@@ -18,6 +18,21 @@ services:
      dockerfile: build/urler.Dockerfile
      context: ../.
 
+  # qrer:
+  #  image: qrer:latest
+  #  container_name: qrer
+  #  restart: always
+  #  depends_on:
+  #    - urls-tnt
+  #    - queue-tnt
+  #  volumes:
+  #    - type: bind
+  #      source: ../qrer/env/compose/config.yaml
+  #      target: /etc/qrer/config.yaml
+  #  build:
+  #    dockerfile: build/qrer.Dockerfile
+  #    context: ../.
+
   urls-tnt:
     image: urls-tnt:latest
     container_name: urls-tnt

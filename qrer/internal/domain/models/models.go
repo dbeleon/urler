@@ -15,8 +15,10 @@ type Url struct {
 }
 
 type QRTask struct {
+	Id       int64
 	Host     string
 	Short    string
+	QR       []byte
 	Priority uint
 	TTL      uint
 	Delay    uint

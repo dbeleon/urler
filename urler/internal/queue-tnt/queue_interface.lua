@@ -25,7 +25,7 @@ function qr_publish(request)
         request.pri = queue_cfg.default_pri
     end
 
-    if request.ttr == nil then
+    if request.ttr == nil or request.ttr == 0 then
         request.ttr = queue_cfg.default_ttr
     end
 
@@ -42,7 +42,7 @@ function qr_publish(request)
 end
 
 function qr_consume(request)
-    log.info(request)
+    log.info("consume %s", request)
 
     if request.timeout == nil or request.timeout < 0 then
         request.timeout = queue_cfg.default_consume_timeout
@@ -70,9 +70,9 @@ end
 function qr_ack(request)
     log.info('acking task=%s', request.id)
 
-    queue.tube.qr_queue:ack(request.id)
+    local res = queue.tube.qr_queue:ack(request.id)
 
-    log.info('acked task=%s', request)
+    log.info('acked task=%s result=%s', request, res)
 
     return {
         code = 0,

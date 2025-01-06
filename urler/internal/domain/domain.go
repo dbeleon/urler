@@ -18,11 +18,13 @@ type Queue interface {
 }
 
 type Config struct {
+	Host    string
 	Repo    Repository
 	QRQueue Queue
 }
 
 type Model struct {
+	host    string
 	repo    Repository
 	qrQueue Queue
 }
@@ -30,6 +32,7 @@ type Model struct {
 func New(conf Config) *Model {
 	log.Debug("creating new model")
 	return &Model{
+		host:    conf.Host,
 		repo:    conf.Repo,
 		qrQueue: conf.QRQueue,
 	}

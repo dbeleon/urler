@@ -8,24 +8,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const defaultConfigPath = "/etc/urler/config.yaml"
+const defaultConfigPath = "/etc/qrer/config.yaml"
 
 type Config struct {
 	Env             string `yaml:"env" env-default:"prod"`
-	Host            string `yaml:"host" env-default:"urler"`
 	ShutdownTimeout int    `yaml:"shutdown_timeout" env-default:"5"`
-	GRPCServer      `yaml:"grpc_server"`
-	HTTPServer      `yaml:"http_server"`
 	UrlsTntDB       `yaml:"urls_tnt"`
 	QRTntQueue      `yaml:"qr_tnt"`
-}
-
-type HTTPServer struct {
-	Address string `yaml:"address" env-default:":8000"`
-}
-
-type GRPCServer struct {
-	Address string `yaml:"address" env-default:":8080"`
 }
 
 type UrlsTntDB struct {
@@ -42,6 +31,7 @@ type QRTntQueue struct {
 	MaxReconnects int    `yaml:"reconnects"`
 	User          string `yaml:"user"`
 	Password      string `yaml:"password"`
+	Timeout       uint   `yaml:"timeout"`
 	Priority      uint   `yaml:"prior"`
 	TTL           uint   `yaml:"ttl"`
 	Delay         uint   `yaml:"delay"`
@@ -49,9 +39,9 @@ type QRTntQueue struct {
 }
 
 func MustLoad() *Config {
-	configPath := os.Getenv("URLER_CONFIG")
+	configPath := os.Getenv("QRER_CONFIG")
 	if configPath == "" {
-		log.Print("URLER_CONFIG is not set, use default:", defaultConfigPath)
+		log.Print("QRER_CONFIG is not set, use default:", defaultConfigPath)
 		configPath = defaultConfigPath
 	}
 

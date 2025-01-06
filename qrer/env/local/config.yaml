@@ -1,11 +1,4 @@
 env: "devel"
-host: "localhost"
-
-grpc_server:
-  address: ":8080"
-
-http_server:
-  address: ":8000"
 
 urls_tnt:
   address: "localhost:3301"
@@ -20,6 +13,7 @@ qr_tnt:
   reconnects: 5
   user: "qr_user"
   password: "dev"
+  timeout: 2
   prior: 0
   ttl: 0
   delay: 0

@@ -56,6 +56,7 @@ func main() {
 	queue := queue.New(queueConf)
 
 	conf := domain.Config{
+		Host:    "http://" + cfg.Host + cfg.HTTPServer.Address,
 		Repo:    tntClient,
 		QRQueue: queue,
 	}

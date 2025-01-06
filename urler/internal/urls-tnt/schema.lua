@@ -37,7 +37,7 @@ exports.init = function()
             { name = 'user_id', type = 'number',    is_nullable = false },
             { name = 'long',    type = 'string',    is_nullable = false },
             { name = 'short',   type = 'string',    is_nullable = false },
-            -- { name = 'qr',       type = 'string', is_nullable = false },
+            { name = 'qr',      type = 'array',     is_nullable = true },
         },
     })
 
