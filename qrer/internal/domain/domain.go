@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"net/url"
@@ -10,14 +9,12 @@ import (
 	"github.com/dbeleon/urler/qrer/internal/domain/models"
 	"github.com/dbeleon/urler/qrer/internal/queue"
 
-	"github.com/yeqown/go-qrcode/v2"
-	"github.com/yeqown/go-qrcode/writer/compressed"
 	"go.uber.org/zap"
 )
 
 type Repository interface {
 	SaveUrl(url models.Url) (*models.Url, error)
-	QRUpdate(qrTask models.QRTask) error
+	QRUpdate(qrTask models.QRTask) ([]int64, error)
 }
 
 type Queue interface {
@@ -26,23 +23,31 @@ type Queue interface {
 	Ack(int64) error
 }
 
-type Config struct {
+type QREncoder interface {
+	Encode(text string) ([]byte, error)
+}
+
+type Options struct {
 	Repo    Repository
 	QRQueue Queue
+	QR      QREncoder
 }
 
 type Model struct {
 	repo    Repository
 	qrQueue Queue
+	qr      QREncoder
 
 	doneChan chan struct{}
 }
 
-func New(conf Config) *Model {
+func New(opt Options) *Model {
 	log.Debug("creating new model")
 	return &Model{
-		repo:     conf.Repo,
-		qrQueue:  conf.QRQueue,
+		repo:    opt.Repo,
+		qrQueue: opt.QRQueue,
+		qr:      opt.QR,
+
 		doneChan: make(chan struct{}),
 	}
 }
@@ -81,30 +86,18 @@ func (m *Model) Worker() {
 			log.Error("cannot join path", zap.Error(err))
 			continue
 		}
-		qrc, err := qrcode.New(addr)
+
+		qrData, err := m.qr.Encode(addr)
 		if err != nil {
-			log.Error("could not generate QRCode", zap.String("url", addr), zap.Error(err))
+			log.Error("QRCode generation failed", zap.String("url", addr), zap.Error(err))
 			continue
 		}
 
-		option := compressed.Option{
-			Padding:   4, // padding pixels around the qr code.
-			BlockSize: 1, // block pixels which represents a bit data.
-		}
-
-		data := make([]byte, 0, 100*1024)
-		buf := bytes.NewBuffer(data)
-		wc := &WrCl{Buf: buf}
-		w := compressed.NewWithWriter(wc, &option)
-		if err = qrc.Save(w); err != nil {
-			log.Error("could not save image", zap.Error(err))
-			continue
-		}
-		task.QR = wc.Buf.Bytes()
-		err = m.repo.QRUpdate(*task)
+		task.QR = qrData
+		_, err = m.repo.QRUpdate(*task)
 		if err != nil {
 			log.Error("could not update url qr", zap.Error(err))
-			//continue
+			continue
 		}
 
 		err = m.qrQueue.Ack(task.Id)
@@ -113,16 +106,4 @@ func (m *Model) Worker() {
 			continue
 		}
 	}
-}
-
-type WrCl struct {
-	Buf *bytes.Buffer
-}
-
-func (w *WrCl) Write(data []byte) (int, error) {
-	return w.Buf.Write(data)
-}
-
-func (w *WrCl) Close() error {
-	return nil
 }

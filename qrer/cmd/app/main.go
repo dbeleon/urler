@@ -10,6 +10,7 @@ import (
 	"github.com/dbeleon/urler/libs/log"
 	"github.com/dbeleon/urler/qrer/internal/config"
 	"github.com/dbeleon/urler/qrer/internal/domain"
+	"github.com/dbeleon/urler/qrer/internal/qr"
 	queue "github.com/dbeleon/urler/qrer/internal/queue/tnt"
 	"github.com/dbeleon/urler/qrer/internal/repository/tnt"
 )
@@ -32,7 +33,6 @@ func main() {
 		User:          cfg.UrlsTntDB.User,
 		Password:      cfg.UrlsTntDB.Password,
 	}
-	tntClient := tnt.New(tntConf)
 
 	queueConf := queue.Config{
 		Address:       cfg.QRTntQueue.Address,
@@ -42,11 +42,11 @@ func main() {
 		Password:      cfg.QRTntQueue.Password,
 		Timeout:       cfg.QRTntQueue.Timeout,
 	}
-	queue := queue.New(queueConf)
 
-	conf := domain.Config{
-		Repo:    tntClient,
-		QRQueue: queue,
+	conf := domain.Options{
+		Repo:    tnt.New(tntConf),
+		QRQueue: queue.New(queueConf),
+		QR:      qr.New(),
 	}
 
 	app := domain.New(conf)

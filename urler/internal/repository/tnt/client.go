@@ -64,18 +64,24 @@ func (c *Client) AddUser(usr dom.User) (*dom.User, error) {
 		Email: usr.Email,
 	}
 	res := c.conn.Do(tarantool.NewCall17Request(FuncAddUser).Args([]interface{}{data}))
-	var ans []*mdl.User
+	var ans []*mdl.UserResponse
 	err := res.GetTyped(&ans)
 	if err != nil {
 		return nil, fmt.Errorf("add user failed: %w", err)
 	}
 
 	if len(ans) == 0 {
-		return nil, fmt.Errorf("unable to add user: %w", err)
+		return nil, repository.ErrNoResult
+	}
+
+	if ans[0].Code != 0 {
+		return nil, errors.New(ans[0].Message)
 	}
 
 	return &dom.User{
-		Id: int64(ans[0].Id),
+		Id:    ans[0].Id,
+		Name:  usr.Name,
+		Email: usr.Email,
 	}, nil
 }
 
@@ -87,7 +93,7 @@ func (c *Client) SaveUrl(url dom.Url) (*dom.Url, error) {
 	}
 
 	res := c.conn.Do(tarantool.NewCall17Request(FuncAddUrl).Args([]interface{}{data}))
-	var ans []*mdl.Url
+	var ans []*mdl.UrlResponse
 	err := res.GetTyped(&ans)
 	if err != nil {
 		var tntErr tarantool.Error
@@ -99,10 +105,14 @@ func (c *Client) SaveUrl(url dom.Url) (*dom.Url, error) {
 	}
 
 	if len(ans) == 0 {
-		return nil, fmt.Errorf("unable to add url: %w", err)
+		return nil, repository.ErrNoResult
 	}
 
-	url.Short = ans[0].Short
+	if ans[0].Code != 0 {
+		return nil, errors.New(ans[0].Message)
+	}
+
+	url.Short = ans[0].Url.Short
 
 	return &url, nil
 }
@@ -112,17 +122,25 @@ func (c *Client) GetUrl(short string) (*dom.Url, error) {
 		Short: short,
 	}
 	res := c.conn.Do(tarantool.NewCall17Request(FuncGetUrl).Args([]interface{}{data}))
-	var ans []*mdl.Url
+	var ans []*mdl.UrlResponse
 	err := res.GetTyped(&ans)
 	if err != nil {
 		return nil, fmt.Errorf("get url failed: %w", err)
 	}
 
 	if len(ans) == 0 {
-		return nil, fmt.Errorf("unable to get url: %w", err)
+		return nil, repository.ErrNoResult
 	}
 
-	url := &dom.Url{Short: short, Long: ans[0].Long}
+	if ans[0].Code != 0 {
+		return nil, errors.New(ans[0].Message)
+	}
+
+	if len(ans) == 0 {
+		return nil, repository.ErrNoResult
+	}
+
+	url := &dom.Url{Short: short, Long: ans[0].Url.Long}
 
 	return url, nil
 }

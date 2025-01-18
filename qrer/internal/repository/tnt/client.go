@@ -2,11 +2,13 @@ package tnt
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"time"
 
 	dom "github.com/dbeleon/urler/qrer/internal/domain/models"
+	"github.com/dbeleon/urler/qrer/internal/repository"
 	mdl "github.com/dbeleon/urler/qrer/internal/repository/tnt/models"
 	"go.uber.org/zap"
 
@@ -85,14 +87,14 @@ func (c *Client) SaveUrl(url dom.Url) (*dom.Url, error) {
 	return &url, nil
 }
 
-func (c *Client) QRUpdate(qrTask dom.QRTask) error {
+func (c *Client) QRUpdate(qrTask dom.QRTask) ([]int64, error) {
 	data := &mdl.Url{
 		Short: qrTask.Short,
-		QR:    qrTask.QR,
+		QR:    base64.StdEncoding.EncodeToString(qrTask.QR),
 	}
 
 	res := c.conn.Do(tarantool.NewCall17Request(FuncQRUpdate).Args([]interface{}{data}))
-	var ans []*mdl.BaseResponse
+	var ans []*mdl.UserIDsResponse
 	err := res.GetTyped(&ans)
 	if err != nil {
 		// var tntErr tarantool.Error
@@ -100,20 +102,18 @@ func (c *Client) QRUpdate(qrTask dom.QRTask) error {
 		// 	return nil, repository.ErrShortUrlCollision
 		// }
 
-		return fmt.Errorf("qr update failed: %w", err)
+		return nil, fmt.Errorf("qr code update failed: %w", err)
 	}
 
 	if len(ans) == 0 {
-		return fmt.Errorf("unable to update qr: %w", err)
+		return nil, repository.ErrNoResult
 	}
 
-	switch ans[0].Code {
-	case 0:
-		return nil
-	default:
+	if ans[0].Code != 0 {
+		return nil, fmt.Errorf("qr update failed: %w", errors.New(ans[0].Message))
 	}
 
-	return fmt.Errorf("qr update failed: %w", errors.New(ans[0].Message))
+	return ans[0].UserIDs, nil
 }
 
 func (c *Client) GetUrl(short string) (*dom.Url, error) {

@@ -1,3 +1,7 @@
 package repository
 
-var ()
+import "errors"
+
+var (
+	ErrNoResult = errors.New("no result")
+)
