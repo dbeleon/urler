@@ -33,6 +33,20 @@ services:
      dockerfile: build/qrer.Dockerfile
      context: ../.
 
+  notifier:
+   image: notifier:latest
+   container_name: notifier
+   restart: always
+   depends_on:
+     - queue-tnt
+   volumes:
+     - type: bind
+       source: ../notifier/env/compose/config.yaml
+       target: /etc/notifier/config.yaml
+   build:
+     dockerfile: build/notifier.Dockerfile
+     context: ../.
+
   urls-tnt:
     image: urls-tnt:latest
     container_name: urls-tnt

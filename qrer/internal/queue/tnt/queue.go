@@ -2,6 +2,7 @@ package tnt
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 )
 
 const (
-	FuncPublish = "qr_publish"
+	FuncPut     = "notif_put"
 	FuncConsume = "qr_consume"
 	FuncAck     = "qr_ack"
 )
@@ -49,15 +50,13 @@ func New(conf Config) *TntQueue {
 	}
 }
 
-func (t *TntQueue) Publish(task dom.QRTask) (int, error) {
-	log.Debug("publishing url", zap.String("short", task.Short))
+func (t *TntQueue) Put(task dom.NotifTask) error {
+	log.Debug("putting notification", zap.String("short", task.Short))
 
-	request := &PublishRequest{
-		Url:      task.Short,
-		Priority: task.Priority,
-		TTL:      task.TTL,
-		Delay:    task.Delay,
-		TTR:      task.TTR,
+	request := &PutRequest{
+		Url:     task.Short,
+		UserIDs: task.UserIDs,
+		QR:      base64.StdEncoding.EncodeToString(task.QR),
 	}
 
 	if request.Priority == 0 {
@@ -68,28 +67,28 @@ func (t *TntQueue) Publish(task dom.QRTask) (int, error) {
 		request.TTR = t.conf.TTR
 	}
 
-	res := t.conn.Do(tarantool.NewCall17Request(FuncPublish).Args([]interface{}{request}))
-	var ans []*PublishResponse
+	res := t.conn.Do(tarantool.NewCall17Request(FuncPut).Args([]interface{}{request}))
+	var ans []*PutResponse
 	err := res.GetTyped(&ans)
 	if err != nil {
-		return 0, fmt.Errorf("publish qr task failed: %w", err)
+		return fmt.Errorf("put notification task failed: %w", err)
 	}
 
 	if len(ans) == 0 {
-		return 0, fmt.Errorf("unable to publish task: %w", err)
+		return fmt.Errorf("unable to put notification task: %w", err)
 	}
 
 	if ans[0].Code != 0 {
-		return 0, fmt.Errorf("response error: code=%d, message=%s", ans[0].Code, ans[0].Message)
+		return fmt.Errorf("put notification response error: code=%d, message=%s", ans[0].Code, ans[0].Message)
 	}
 
-	return int(ans[0].Id), nil
+	return nil
 }
 
 func (t *TntQueue) Ack(id int64) error {
 	var result []*AckResponse
 
-	log.Debug("acking", zap.Int64("id", id))
+	log.Debug("acking qr", zap.Int64("id", id))
 
 	request := &AckRequest{
 		Id: id,
@@ -102,11 +101,11 @@ func (t *TntQueue) Ack(id int64) error {
 	}
 
 	if len(result) == 0 {
-		return fmt.Errorf("unable to ack task: %w", err)
+		return fmt.Errorf("unable to ack qr task: %w", err)
 	}
 
 	if result[0].Code != 0 {
-		return fmt.Errorf("response error: code=%d, message=%s", result[0].Code, result[0].Message)
+		return fmt.Errorf("qr task ack response error: code=%d, message=%s", result[0].Code, result[0].Message)
 	}
 
 	return nil
@@ -135,18 +134,6 @@ func (t *TntQueue) Consume() (*dom.QRTask, error) {
 	case 0:
 		return &dom.QRTask{Id: result[0].Id, Short: result[0].Url}, nil
 	default:
-		return nil, fmt.Errorf("response error: code=%d, message=%s", result[0].Code, result[0].Message)
+		return nil, fmt.Errorf("consume qr task response error: code=%d, message=%s", result[0].Code, result[0].Message)
 	}
 }
-
-// func (t *tarqueue) pruneQueue(ctx context.Context) error {
-// 	var result interface{}
-
-// 	if err := t.client.Call17(ImporterPruneMethod, []interface{}{}, &result); err != nil {
-// 		return err
-// 	}
-
-// 	t.logger.Ctx(ctx).Debugf("importer_prune res={%v}", result)
-
-// 	return nil
-// }

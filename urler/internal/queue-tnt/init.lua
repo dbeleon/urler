@@ -22,7 +22,7 @@ box.cfg {
 queue_cfg = {
     default_consume_timeout = 5, -- 5 s
     default_pri = 0,
-    default_ttr = 600, -- 10min
+    default_ttr = 60, -- 1min
 
     tubes = {
         {
@@ -32,12 +32,20 @@ queue_cfg = {
                 temporary = false,
                 if_not_exists = true,
             }
+        },
+        {
+            name = 'notif_queue',
+            driver = 'limfifottl',
+            opts = {
+                temporary = false,
+                if_not_exists = true,
+            }
         }
     }
 }
 
-local role_name = 'qr_role'
-local user_name = 'qr_user'
+local role_name = 'q_role'
+local user_name = 'q_user'
 
 
 log.info('init begins')

@@ -37,25 +37,24 @@ func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, e
 	if err != nil {
 		e := ErrNotRespond
 		if errors.Is(err, repository.ErrShortUrlCollision) {
-			e = ErrToManyHashColiisions
+			e = ErrToManyHashCollisions
+		}
+		if errors.Is(err, repository.ErrUserNotFound) {
+			e = ErrUserNotFound
 		}
 		log.Error(e.Error(), zap.Error(err))
 		return "", e
 	}
 
-	// TODO: use transactional outbox
+	// TODO: use transactional outbox - m.b. not need?
 	if res.Short == urlModel.Short {
+		_, err = m.qrQueue.Put(models.QRTask{
+			Host:  m.conf.Host,
+			Short: res.Short,
+			TTR:   10,
+		})
 		if err != nil {
-			log.Error("url path join failed", zap.Error(err))
-		} else {
-			_, err = m.qrQueue.Publish(models.QRTask{
-				Host:  m.host,
-				Short: res.Short,
-				TTR:   10,
-			})
-			if err != nil {
-				log.Error("publish to qr queue failed", zap.Error(err))
-			}
+			log.Error("publish to qr queue failed", zap.Error(err))
 		}
 	}
 

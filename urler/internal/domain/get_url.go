@@ -12,7 +12,7 @@ var (
 	ErrUserNotFound         = errors.New("user not found")
 	ErrShortUrlNotFound     = errors.New("short url not found")
 	ErrNotRespond           = errors.New("repository is not responding")
-	ErrToManyHashColiisions = errors.New("to many url hash collisions")
+	ErrToManyHashCollisions = errors.New("to many url hash collisions")
 )
 
 func (m *Model) GetUrl(ctx context.Context, shortUrl string) (string, error) {

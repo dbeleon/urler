@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	FuncPublish = "qr_publish"
+	FuncPut = "qr_put"
 )
 
 type tarqueue struct {
@@ -46,8 +46,8 @@ func New(conf Config) *tarqueue {
 	}
 }
 
-func (t *tarqueue) Publish(task dom.QRTask) (int, error) {
-	log.Debug("publishing url", zap.String("short", task.Short))
+func (t *tarqueue) Put(task dom.QRTask) (int, error) {
+	log.Debug("putting url", zap.String("short", task.Short))
 
 	request := &PublishRequest{
 		Url:      task.Short,
@@ -65,7 +65,7 @@ func (t *tarqueue) Publish(task dom.QRTask) (int, error) {
 		request.TTR = t.conf.TTR
 	}
 
-	res := t.conn.Do(tarantool.NewCall17Request(FuncPublish).Args([]interface{}{request}))
+	res := t.conn.Do(tarantool.NewCall17Request(FuncPut).Args([]interface{}{request}))
 	var ans []*PublishResponse
 	err := res.GetTyped(&ans)
 	if err != nil {

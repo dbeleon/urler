@@ -108,7 +108,11 @@ func (c *Client) SaveUrl(url dom.Url) (*dom.Url, error) {
 		return nil, repository.ErrNoResult
 	}
 
-	if ans[0].Code != 0 {
+	switch ans[0].Code {
+	case 0:
+	case 2:
+		return nil, repository.ErrUserNotFound
+	default:
 		return nil, errors.New(ans[0].Message)
 	}
 

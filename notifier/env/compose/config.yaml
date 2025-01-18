@@ -1,13 +1,6 @@
 env: "devel"
 
-urls_tnt:
-  address: "urls-tnt:3301"
-  reconnect: 5
-  reconnects: 5
-  user: "urls_user"
-  password: "dev"
-
-qr_tnt:
+queue_tnt:
   address: "queue-tnt:3301"
   reconnect: 5
   reconnects: 5

@@ -7,15 +7,17 @@ type BaseResponse struct {
 	Message string `msgpack:"message"`
 }
 
-type PublishRequest struct {
-	Url      string `msgpack:"url"`
-	Priority uint   `msgpack:"pri"`
-	TTL      uint   `msgpack:"ttl"`
-	Delay    uint   `msgpack:"delay"`
-	TTR      uint   `msgpack:"ttr"`
+type PutRequest struct {
+	Url      string  `msgpack:"url"`
+	UserIDs  []int64 `msgpack:"user_ids"`
+	QR       string  `msgpack:"qr"`
+	Priority uint    `msgpack:"pri"`
+	TTL      uint    `msgpack:"ttl"`
+	Delay    uint    `msgpack:"delay"`
+	TTR      uint    `msgpack:"ttr"`
 }
 
-type PublishResponse struct {
+type PutResponse struct {
 	BaseResponse
 	Id int64 `msgpack:"id"`
 }

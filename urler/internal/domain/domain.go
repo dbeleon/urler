@@ -14,27 +14,30 @@ type Repository interface {
 }
 
 type Queue interface {
-	Publish(models.QRTask) (int, error)
+	Put(models.QRTask) (int, error)
 }
 
 type Config struct {
-	Host    string
+	Host string
+}
+
+type Options struct {
 	Repo    Repository
 	QRQueue Queue
 }
 
 type Model struct {
-	host    string
+	conf    Config
 	repo    Repository
 	qrQueue Queue
 }
 
-func New(conf Config) *Model {
+func New(conf Config, opt Options) *Model {
 	log.Debug("creating new model")
 	return &Model{
-		host:    conf.Host,
-		repo:    conf.Repo,
-		qrQueue: conf.QRQueue,
+		conf:    conf,
+		repo:    opt.Repo,
+		qrQueue: opt.QRQueue,
 	}
 }
 

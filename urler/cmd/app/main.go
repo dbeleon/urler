@@ -56,12 +56,15 @@ func main() {
 	queue := queue.New(queueConf)
 
 	conf := domain.Config{
-		Host:    "http://" + cfg.Host + cfg.HTTPServer.Address,
+		Host: "http://" + cfg.Host + cfg.HTTPServer.Address,
+	}
+
+	opt := domain.Options{
 		Repo:    tntClient,
 		QRQueue: queue,
 	}
 
-	app := domain.New(conf)
+	app := domain.New(conf, opt)
 
 	app.MustStart()
 

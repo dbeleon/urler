@@ -14,15 +14,9 @@ type Url struct {
 	QR    []byte
 }
 
-type QRTask struct {
-	Id    int64
-	Host  string
-	Short string
-	QR    []byte
-}
-
-type NotifTask struct {
+type NotifyTask struct {
+	Id      int64
 	Short   string
-	UserIDs []int64
+	UserIds []int64
 	QR      []byte
 }

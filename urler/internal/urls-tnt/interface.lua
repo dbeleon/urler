@@ -190,15 +190,15 @@ function url_get(req)
     if req ~= nil
         and req.short ~= nil and type(req.short) == 'string'
     then
-        local res = box.space.url.index.short_index:select{req.short}
-        if #res == 0 then
+        local res = box.space.url.index.short_index:get{req.short}
+        if res == nil then
             log.info("url not found")
             return res_not_found
         end
 
-        log.info("url found=%s", res[1])
+        log.info("url found=%s", res)
 
-        return res({url = res[1]})
+        return res_ok({url = { id = res[1], long = res[2], short = res[3], qr = res[4] }})
     end
 
     return res_bad_request

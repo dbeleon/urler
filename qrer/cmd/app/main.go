@@ -44,9 +44,9 @@ func main() {
 	}
 
 	conf := domain.Options{
-		Repo:    tnt.New(tntConf),
-		QRQueue: queue.New(queueConf),
-		QR:      qr.New(),
+		Repo:  tnt.New(tntConf),
+		Queue: queue.New(queueConf),
+		QR:    qr.New(),
 	}
 
 	app := domain.New(conf)

@@ -12,13 +12,15 @@ import (
 	"go.uber.org/zap"
 )
 
+const workersNumber = 5
+
 type Repository interface {
 	SaveUrl(url models.Url) (*models.Url, error)
 	QRUpdate(qrTask models.QRTask) ([]int64, error)
 }
 
-type Queue interface {
-	Publish(models.QRTask) (int, error)
+type Queuer interface {
+	Put(models.NotifTask) error
 	Consume() (*models.QRTask, error)
 	Ack(int64) error
 }
@@ -28,14 +30,14 @@ type QREncoder interface {
 }
 
 type Options struct {
-	Repo    Repository
-	QRQueue Queue
-	QR      QREncoder
+	Repo  Repository
+	Queue Queuer
+	QR    QREncoder
 }
 
 type Model struct {
 	repo    Repository
-	qrQueue Queue
+	qrQueue Queuer
 	qr      QREncoder
 
 	doneChan chan struct{}
@@ -45,7 +47,7 @@ func New(opt Options) *Model {
 	log.Debug("creating new model")
 	return &Model{
 		repo:    opt.Repo,
-		qrQueue: opt.QRQueue,
+		qrQueue: opt.Queue,
 		qr:      opt.QR,
 
 		doneChan: make(chan struct{}),
@@ -54,7 +56,7 @@ func New(opt Options) *Model {
 
 func (m *Model) MustStart() {
 	log.Debug("starting model")
-	for i := 0; i < 1; i++ {
+	for i := 0; i < workersNumber; i++ {
 		go m.Worker()
 	}
 }
@@ -94,11 +96,17 @@ func (m *Model) Worker() {
 		}
 
 		task.QR = qrData
-		_, err = m.repo.QRUpdate(*task)
+		userIDs, err := m.repo.QRUpdate(*task)
 		if err != nil {
 			log.Error("could not update url qr", zap.Error(err))
 			continue
 		}
+
+		m.qrQueue.Put(models.NotifTask{
+			Short:   task.Short,
+			UserIDs: userIDs,
+			QR:      qrData,
+		})
 
 		err = m.qrQueue.Ack(task.Id)
 		if err != nil {

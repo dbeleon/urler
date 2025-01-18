@@ -18,7 +18,7 @@ qr_tnt:
   address: "localhost:3401"
   reconnect: 5
   reconnects: 5
-  user: "qr_user"
+  user: "q_user"
   password: "dev"
   prior: 0
   ttl: 0
