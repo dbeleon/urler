@@ -1,15 +1,47 @@
 services:
 
-  urler:
+  nginx:
+    container_name: nginx-balancer
+    build:
+      context: ../.
+      dockerfile: build/nginx.Dockerfile
+    depends_on:
+      - urler-1
+      - urler-2
+    ports:
+      - "5100:5100"
+      - "8080:8080"
+      - "8000:8000"
+    restart: always
+
+  urler-1:
    image: urler:latest
-   container_name: urler
+   container_name: urler-1
    restart: always
    depends_on:
      - urls-tnt
      - queue-tnt
    ports:
-     - 8080:8080
-     - 8000:8000
+     - 8081:8080
+     - 8001:8000
+   volumes:
+     - type: bind
+       source: ../urler/env/compose/config.yaml
+       target: /etc/urler/config.yaml
+   build:
+     dockerfile: build/urler.Dockerfile
+     context: ../.
+
+  urler-2:
+   image: urler:latest
+   container_name: urler-2
+   restart: always
+   depends_on:
+     - urls-tnt
+     - queue-tnt
+   ports:
+     - 8082:8080
+     - 8002:8000
    volumes:
      - type: bind
        source: ../urler/env/compose/config.yaml
