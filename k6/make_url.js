@@ -6,7 +6,7 @@ export default function() {
     var url = "http://localhost:8000/v1/url";
     const data = {
         user: Math.floor(1 + 50000 * Math.random()),
-        url: faker.internet.url(),//"http://"+Math.floor(99999999 * Math.random())+".ru",
+        url: faker.internet.url() + "." + Math.floor(999999999999 * Math.random()) + ".my",
       };
 
     let res = http.post(url, JSON.stringify(data), {

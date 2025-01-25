@@ -23,7 +23,7 @@ test_add_user: test
 
 test_make_url: TEST = make_url
 test_make_url: USR = 200
-test_make_url: DUR = 60s
+test_make_url: DUR = 20s
 test_make_url: test
 
 test_make_url_same: TEST = make_url_same

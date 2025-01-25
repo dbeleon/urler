@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const workersNumber = 5
+const workersNumber = 12
 
 type Repository interface {
 	SaveUrl(url models.Url) (*models.Url, error)

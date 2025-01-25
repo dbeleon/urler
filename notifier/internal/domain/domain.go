@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const workersNumber = 1
+const workersNumber = 12
 
 type NotifyQueue interface {
 	Consume() (*models.NotifyTask, error)
