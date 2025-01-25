@@ -5,6 +5,7 @@ import (
 	"errors"
 	"math/rand"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/dbeleon/urler/libs/log"
 	"github.com/dbeleon/urler/urler/internal/domain/models"
 	"github.com/dbeleon/urler/urler/internal/repository"
@@ -16,6 +17,11 @@ var (
 	ErrFailedToSaveUrl = errors.New("failed to save url")
 )
 
+const (
+	SaveUrlAttempts   = 5
+	CollisionAttempts = 5
+)
+
 func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, error) {
 	hashSize := 8
 	urlModel := models.Url{
@@ -23,16 +29,31 @@ func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, e
 		Long:  long,
 		Short: GenHash(hashSize),
 	}
-	res, err := m.repo.SaveUrl(urlModel)
-	for range 3 {
-		if errors.Is(err, repository.ErrShortUrlCollision) {
-			urlModel.Short = GenHash(hashSize)
+	collisionAttempts := CollisionAttempts
+	var res *models.Url
+	err := retry.Do(
+		func() error {
+			var err error
 			res, err = m.repo.SaveUrl(urlModel)
-			continue
-		}
+			for collisionAttempts > 0 {
+				if errors.Is(err, repository.ErrShortUrlCollision) {
+					collisionAttempts--
+					urlModel.Short = GenHash(hashSize)
+					res, err = m.repo.SaveUrl(urlModel)
+					continue
+				}
 
-		break
-	}
+				break
+			}
+
+			return err
+		},
+		retry.Attempts(SaveUrlAttempts),
+		retry.OnRetry(func(n uint, err error) {
+			log.Info("retrying to save url", zap.Int("attempt", int(n)), zap.Error(err),
+				zap.String("long", urlModel.Long), zap.String("short", urlModel.Short))
+		}),
+	)
 
 	if err != nil {
 		e := ErrNotRespond

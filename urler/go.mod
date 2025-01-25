@@ -18,6 +18,7 @@ require (
 )
 
 require (
+	github.com/avast/retry-go/v4 v4.6.0 // indirect
 	github.com/cilium/ebpf v0.17.1 // indirect
 	github.com/cosiner/argv v0.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect

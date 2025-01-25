@@ -1,8 +1,11 @@
 local log       = require('log')
 local buffer = require('buffer')
+local fiber = require('fiber')
 local ffi = require('ffi')
 
 local exports   = {}
+
+local addUrlAttempts = 5
 
 local interface = {
     'user_add',
@@ -65,29 +68,42 @@ function url_add(req)
             return res_not_found
         end
 
-        box.begin()
-        -- TODO: isolation level
+        for i = 1, addUrlAttempts do -- Делаем попытки вставки
+            local status, err = pcall(function()
+                box.begin()
+                -- TODO: isolation level
 
-        local res = box.space.url.index.long_index:get(req.long)
-        -- log.info("long url found: %s", res)
-        if res == nil then
-            local tplUrl = box.space.url:insert({ nil, req.long, req.short, nil })
-            -- log.info("url added=%s", tpl)
-            req.id = tplUrl[1]
-        else
-            -- log.info("url found=%s", res[1])
-            req.id = res[1]
-            req.short = res[3]
+                local res = box.space.url.index.long_index:get(req.long)
+                -- log.info("long url found: %s", res)
+                if res == nil then
+                    local tplUrl = box.space.url:insert({ nil, req.long, req.short, nil })
+                    -- log.info("url added=%s", tplUrl)
+                    req.id = tplUrl[1]
+                else
+                    -- log.info("url found=%s", res[1])
+                    req.id = res[1]
+                    req.short = res[3]
+                end
+
+                local usrUrl = { req.user_id, req.id }
+                if box.space.usr_url:get(usrUrl) == nil then
+                    -- log.info("add user=%s url=%s", usrUrl[1], usrUrl[2])
+                    box.space.usr_url:insert(usrUrl)
+                end
+
+                box.commit()
+            end)
+    
+            if status then
+                print(string.format("✅ [SUCCESS] add url long='%s' and short='%s'", req.long, req.short))
+                return res_ok({url = req})
+            end
+    
+            print(string.format("🔁 [RETRY %d] add url failed long='%s' and short='%s': %s", i, req.long, req.short, err))
+            fiber.sleep(0.1) -- Ждём и пробуем ещё раз
         end
 
-        local usrUrl = { req.user_id, req.id }
-        if box.space.usr_url:get(usrUrl) == nil then
-            box.space.usr_url:insert(usrUrl)
-        end
-
-        box.commit()
-
-        return res_ok({url = req})
+        return res_make(3, "transation rollback")
     end
 
     return res_bad_request

@@ -48,6 +48,7 @@ exports.init = function()
     
     usr_url_space:create_index('url_index', {
         type = 'TREE',
+        unique = false,
         if_not_exists = true,
         parts = {
             { 'url_id', is_nullable = false, type = 'unsigned' }

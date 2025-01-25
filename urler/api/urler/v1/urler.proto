@@ -30,7 +30,7 @@ service UrlerService {
 
 message AddUserRequest {
   string name = 1 [(validate.rules).string = {
-    pattern:   "^[A-Za-z0-9-_]+[A-Za-z0-9-_ ]*$",
+    pattern:   "^[A-Za-z0-9-_\\.]+[A-Za-z0-9-_\\. ]*$",
     max_bytes: 256,
   }];
   string email = 2 [(validate.rules).string.email = true];

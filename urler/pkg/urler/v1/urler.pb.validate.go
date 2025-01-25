@@ -71,7 +71,7 @@ func (m *AddUserRequest) validate(all bool) error {
 	if !_AddUserRequest_Name_Pattern.MatchString(m.GetName()) {
 		err := AddUserRequestValidationError{
 			field:  "Name",
-			reason: "value does not match regex pattern \"^[A-Za-z0-9-_]+[A-Za-z0-9-_ ]*$\"",
+			reason: "value does not match regex pattern \"^[A-Za-z0-9-_\\\\.]+[A-Za-z0-9-_\\\\. ]*$\"",
 		}
 		if !all {
 			return err
@@ -219,7 +219,7 @@ var _ interface {
 	ErrorName() string
 } = AddUserRequestValidationError{}
 
-var _AddUserRequest_Name_Pattern = regexp.MustCompile("^[A-Za-z0-9-_]+[A-Za-z0-9-_ ]*$")
+var _AddUserRequest_Name_Pattern = regexp.MustCompile("^[A-Za-z0-9-_\\.]+[A-Za-z0-9-_\\. ]*$")
 
 // Validate checks the field values on AddUserResponse with the rules defined
 // in the proto definition for this message. If any rules are violated, the

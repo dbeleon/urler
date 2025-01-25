@@ -96,6 +96,7 @@ func (c *Client) SaveUrl(url dom.Url) (*dom.Url, error) {
 	var ans []*mdl.UrlResponse
 	err := res.GetTyped(&ans)
 	if err != nil {
+		log.Error("tnt save url failed", zap.Error(err), zap.String("url", url.Long), zap.String("short", url.Short))
 		var tntErr tarantool.Error
 		if errors.As(err, &tntErr) && tntErr.Code == iproto.ER_TUPLE_FOUND {
 			return nil, repository.ErrShortUrlCollision
