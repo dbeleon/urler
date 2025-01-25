@@ -10,7 +10,7 @@ down:
 	docker compose --file deployments/docker-compose.yaml down
 
 clean:
-	rm -rf deployments/data
+	sudo rm -rf deployments/data
 
 restart: down up
 
@@ -32,6 +32,7 @@ test_make_url_same: DUR = 1s
 test_make_url_same: test
 
 test:
-	rm -f k6/result/${TEST}.json && \
-	rm -f k6/export/${TEST}.json && \
+	mkdir -p k6/result/ k6/export && \
+	if [ -f "k6/result/${TEST}.json" ] ; then rm -f k6/result/${TEST}.json ; fi && \
+	if [ -f "k6/export/${TEST}.json" ] ; then rm -f k6/export/${TEST}.json ; fi && \
 	k6 run -u ${USR} -d ${DUR} --summary-export=k6/export/${TEST}.json --out json=k6/result/${TEST}.json k6/${TEST}.js
