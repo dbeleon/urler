@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UrlerService_AddUser_FullMethodName = "/github.com.dbeleon.urler.UrlerService/AddUser"
-	UrlerService_MakeUrl_FullMethodName = "/github.com.dbeleon.urler.UrlerService/MakeUrl"
-	UrlerService_GetUrl_FullMethodName  = "/github.com.dbeleon.urler.UrlerService/GetUrl"
+	UrlerService_AddUser_FullMethodName   = "/github.com.dbeleon.urler.UrlerService/AddUser"
+	UrlerService_MakeUrl_FullMethodName   = "/github.com.dbeleon.urler.UrlerService/MakeUrl"
+	UrlerService_GetUrl_FullMethodName    = "/github.com.dbeleon.urler.UrlerService/GetUrl"
+	UrlerService_GetShorts_FullMethodName = "/github.com.dbeleon.urler.UrlerService/GetShorts"
 )
 
 // UrlerServiceClient is the client API for UrlerService service.
@@ -31,6 +32,7 @@ type UrlerServiceClient interface {
 	AddUser(ctx context.Context, in *AddUserRequest, opts ...grpc.CallOption) (*AddUserResponse, error)
 	MakeUrl(ctx context.Context, in *MakeUrlRequest, opts ...grpc.CallOption) (*MakeUrlResponse, error)
 	GetUrl(ctx context.Context, in *GetUrlRequest, opts ...grpc.CallOption) (*GetUrlResponse, error)
+	GetShorts(ctx context.Context, in *GetShortsRequest, opts ...grpc.CallOption) (*GetShortsResponse, error)
 }
 
 type urlerServiceClient struct {
@@ -71,6 +73,16 @@ func (c *urlerServiceClient) GetUrl(ctx context.Context, in *GetUrlRequest, opts
 	return out, nil
 }
 
+func (c *urlerServiceClient) GetShorts(ctx context.Context, in *GetShortsRequest, opts ...grpc.CallOption) (*GetShortsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetShortsResponse)
+	err := c.cc.Invoke(ctx, UrlerService_GetShorts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UrlerServiceServer is the server API for UrlerService service.
 // All implementations must embed UnimplementedUrlerServiceServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type UrlerServiceServer interface {
 	AddUser(context.Context, *AddUserRequest) (*AddUserResponse, error)
 	MakeUrl(context.Context, *MakeUrlRequest) (*MakeUrlResponse, error)
 	GetUrl(context.Context, *GetUrlRequest) (*GetUrlResponse, error)
+	GetShorts(context.Context, *GetShortsRequest) (*GetShortsResponse, error)
 	mustEmbedUnimplementedUrlerServiceServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedUrlerServiceServer) MakeUrl(context.Context, *MakeUrlRequest)
 }
 func (UnimplementedUrlerServiceServer) GetUrl(context.Context, *GetUrlRequest) (*GetUrlResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUrl not implemented")
+}
+func (UnimplementedUrlerServiceServer) GetShorts(context.Context, *GetShortsRequest) (*GetShortsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetShorts not implemented")
 }
 func (UnimplementedUrlerServiceServer) mustEmbedUnimplementedUrlerServiceServer() {}
 func (UnimplementedUrlerServiceServer) testEmbeddedByValue()                      {}
@@ -172,6 +188,24 @@ func _UrlerService_GetUrl_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UrlerService_GetShorts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetShortsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UrlerServiceServer).GetShorts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UrlerService_GetShorts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UrlerServiceServer).GetShorts(ctx, req.(*GetShortsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UrlerService_ServiceDesc is the grpc.ServiceDesc for UrlerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var UrlerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUrl",
 			Handler:    _UrlerService_GetUrl_Handler,
+		},
+		{
+			MethodName: "GetShorts",
+			Handler:    _UrlerService_GetShorts_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

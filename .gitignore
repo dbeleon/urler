@@ -32,3 +32,4 @@ deployments/data
 __debug*
 k6/export
 k6/result
+k6/shorts.json

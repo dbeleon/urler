@@ -2,10 +2,10 @@ env: "devel"
 host: "localhost"
 
 grpc_server:
-  address: ":8080"
+  address: ":8088"
 
 http_server:
-  address: ":8000"
+  address: ":8008"
 
 urls_tnt:
   address: "localhost:3301"

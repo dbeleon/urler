@@ -18,6 +18,7 @@ exports.init = function()
             { name = 'name',    type = 'string',    is_nullable = false },
             { name = 'email',   type = 'string',    is_nullable = false },
         },
+        -- is_sync = true, -- for enable sync replication mode
     })
 
     box.schema.sequence.create('user_id_seq', { if_not_exists = true })

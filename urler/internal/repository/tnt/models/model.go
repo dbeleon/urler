@@ -27,3 +27,13 @@ type UrlResponse struct {
 	BaseResponse
 	Url Url `msgpack:"url"`
 }
+
+type LimOff struct {
+	Limit  int64 `msgpack:"limit"`
+	Offset int64 `msgpack:"offset"`
+}
+
+type ShortsResponse struct {
+	BaseResponse
+	Shorts []string `msgpack:"shorts"`
+}

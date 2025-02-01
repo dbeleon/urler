@@ -11,6 +11,7 @@ type Repository interface {
 	AddUser(models.User) (*models.User, error)
 	SaveUrl(url models.Url) (*models.Url, error)
 	GetUrl(short string) (*models.Url, error)
+	GetShorts(limit int64, offset int64) ([]string, error)
 }
 
 type Queue interface {

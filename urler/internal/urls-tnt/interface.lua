@@ -12,6 +12,7 @@ local interface = {
     'url_add',
     'url_get',
     'qr_update',
+    'url_shorts',
 }
 
 local function res_make(code, message)
@@ -215,6 +216,23 @@ function url_get(req)
         log.info("url found=%s", res)
 
         return res_ok({url = { id = res[1], long = res[2], short = res[3], qr = res[4] }})
+    end
+
+    return res_bad_request
+end
+
+function url_shorts(req)
+    if req ~= nil
+        and req.limit ~= nil and type(req.limit) == 'number'
+        and req.offset ~= nil and type(req.offset) == 'number'
+    then
+        local tpl = box.space.url:select({0},{iterator='GT', limit = req.limit, offset = req.offset})
+        local res = {}
+        for _,v in ipairs(tpl) do
+            table.insert(res, v[3])
+        end
+
+        return res_ok({shorts = res})
     end
 
     return res_bad_request

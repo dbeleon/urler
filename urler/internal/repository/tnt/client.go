@@ -17,9 +17,10 @@ import (
 )
 
 const (
-	FuncAddUser = "user_add"
-	FuncAddUrl  = "url_add"
-	FuncGetUrl  = "url_get"
+	FuncAddUser   = "user_add"
+	FuncAddUrl    = "url_add"
+	FuncGetUrl    = "url_get"
+	FuncGetShorts = "url_shorts"
 )
 
 // Client connects to tarantool
@@ -148,4 +149,31 @@ func (c *Client) GetUrl(short string) (*dom.Url, error) {
 	url := &dom.Url{Short: short, Long: ans[0].Url.Long}
 
 	return url, nil
+}
+
+func (c *Client) GetShorts(limit int64, offset int64) ([]string, error) {
+	data := &mdl.LimOff{
+		Limit:  limit,
+		Offset: offset,
+	}
+	res := c.conn.Do(tarantool.NewCall17Request(FuncGetShorts).Args([]interface{}{data}))
+	var ans []*mdl.ShortsResponse
+	err := res.GetTyped(&ans)
+	if err != nil {
+		return nil, fmt.Errorf("get shorts failed: %w", err)
+	}
+
+	if len(ans) == 0 {
+		return nil, repository.ErrNoResult
+	}
+
+	if ans[0].Code != 0 {
+		return nil, errors.New(ans[0].Message)
+	}
+
+	if len(ans) == 0 {
+		return nil, repository.ErrNoResult
+	}
+
+	return ans[0].Shorts, nil
 }

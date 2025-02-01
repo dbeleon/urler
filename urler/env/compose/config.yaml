@@ -8,7 +8,7 @@ http_server:
   address: ":8000"
 
 urls_tnt:
-  address: "urls-tnt:3301"
+  address: "urls-tnt-m:3301"
   reconnect: 5
   reconnects: 5
   user: "urls_user"

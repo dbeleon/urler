@@ -26,6 +26,11 @@ service UrlerService {
       get: "/v1/url"
     };
   }
+  rpc GetShorts(GetShortsRequest) returns (GetShortsResponse) {
+    option (google.api.http) = {
+      get: "/v1/shorts"
+    };
+  }
 }
 
 message AddUserRequest {
@@ -55,4 +60,13 @@ message GetUrlRequest {
 
 message GetUrlResponse {
   string url = 1;
+}
+
+message GetShortsRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+}
+
+message GetShortsResponse {
+  repeated string shorts = 1;
 }

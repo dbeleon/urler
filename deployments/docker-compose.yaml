@@ -8,6 +8,8 @@ services:
     depends_on:
       - urler-1
       - urler-2
+      - urler-3
+    # command: sleep 4 # ожидаем 
     ports:
       - "5100:5100"
       - "8080:8080"
@@ -19,8 +21,9 @@ services:
    container_name: urler-1
    restart: always
    depends_on:
-     - urls-tnt
+     - urls-tnt-m
      - queue-tnt
+   command: sleep 3 # ожидаем 
    ports:
      - 8081:8080
      - 8001:8000
@@ -37,8 +40,9 @@ services:
    container_name: urler-2
    restart: always
    depends_on:
-     - urls-tnt
+     - urls-tnt-m
      - queue-tnt
+   command: sleep 3 # ожидаем 
    ports:
      - 8082:8080
      - 8002:8000
@@ -50,13 +54,33 @@ services:
      dockerfile: build/urler.Dockerfile
      context: ../.
 
-  qrer:
-   image: qrer:latest
-   container_name: qrer
+  urler-3:
+   image: urler:latest
+   container_name: urler-3
    restart: always
    depends_on:
-     - urls-tnt
+     - urls-tnt-m
      - queue-tnt
+   command: sleep 3 # ожидаем 
+   ports:
+     - 8083:8080
+     - 8003:8000
+   volumes:
+     - type: bind
+       source: ../urler/env/compose/config.yaml
+       target: /etc/urler/config.yaml
+   build:
+     dockerfile: build/urler.Dockerfile
+     context: ../.
+
+  qrer-1:
+   image: qrer:latest
+   container_name: qrer-1
+   restart: always
+   depends_on:
+     - urls-tnt-m
+     - queue-tnt
+   command: sleep 3 # ожидаем 
    volumes:
      - type: bind
        source: ../qrer/env/compose/config.yaml
@@ -65,12 +89,29 @@ services:
      dockerfile: build/qrer.Dockerfile
      context: ../.
 
-  notifier:
+  qrer-2:
+   image: qrer:latest
+   container_name: qrer-2
+   restart: always
+   depends_on:
+     - urls-tnt-m
+     - queue-tnt
+   command: sleep 3 # ожидаем 
+   volumes:
+     - type: bind
+       source: ../qrer/env/compose/config.yaml
+       target: /etc/qrer/config.yaml
+   build:
+     dockerfile: build/qrer.Dockerfile
+     context: ../.
+
+  notifier-1:
    image: notifier:latest
-   container_name: notifier
+   container_name: notifier-1
    restart: always
    depends_on:
      - queue-tnt
+   command: sleep 3 # ожидаем 
    volumes:
      - type: bind
        source: ../notifier/env/compose/config.yaml
@@ -79,21 +120,85 @@ services:
      dockerfile: build/notifier.Dockerfile
      context: ../.
 
-  urls-tnt:
+  notifier-2:
+   image: notifier:latest
+   container_name: notifier-2
+   restart: always
+   depends_on:
+     - queue-tnt
+   command: sleep 3 # ожидаем 
+   volumes:
+     - type: bind
+       source: ../notifier/env/compose/config.yaml
+       target: /etc/notifier/config.yaml
+   build:
+     dockerfile: build/notifier.Dockerfile
+     context: ../.
+
+  urls-tnt-m:
     image: urls-tnt:latest
-    container_name: urls-tnt
+    container_name: urls-tnt-m
     restart: always
     ports:
       - 3301:3301
       - 3303:3303
     volumes:
-      - ./data/urls-tnt-data:/var/lib/tarantool
+      - ./data/urls-tnt-m-data:/var/lib/tarantool
     environment:
       TARANTOOL_LISTEN: 0.0.0.0:3301
       TARANTOOL_WAL_DIR: /var/lib/tarantool
       TARANTOOL_MEMTX_DIR: /var/lib/tarantool
       TARANTOOL_VINYL_DIR: /var/lib/tarantool
       TARANTOOL_ADMIN_ADDR: 0.0.0.0:3303
+      TARANTOOL_MEMTX_MEM: 2147483648
+      TARANTOOL_IS_REPLICA: false
+      TARANTOOL_REPLICATION_PASSWORD: pa$$w0rd
+      USER_PASS: dev
+    build:
+      dockerfile: build/urls-tnt.Dockerfile
+      context: ../.
+
+  urls-tnt-r1:
+    image: urls-tnt:latest
+    container_name: urls-tnt-r1
+    restart: always
+    ports:
+      - 3311:3301
+      - 3313:3303
+    volumes:
+      - ./data/urls-tnt-r1-data:/var/lib/tarantool
+    environment:
+      TARANTOOL_LISTEN: 0.0.0.0:3301
+      TARANTOOL_WAL_DIR: /var/lib/tarantool
+      TARANTOOL_MEMTX_DIR: /var/lib/tarantool
+      TARANTOOL_VINYL_DIR: /var/lib/tarantool
+      TARANTOOL_ADMIN_ADDR: 0.0.0.0:3303
+      TARANTOOL_MEMTX_MEM: 2147483648
+      TARANTOOL_IS_REPLICA: true
+      TARANTOOL_REPLICATION_PASSWORD: pa$$w0rd
+      USER_PASS: dev
+    build:
+      dockerfile: build/urls-tnt.Dockerfile
+      context: ../.
+
+  urls-tnt-r2:
+    image: urls-tnt:latest
+    container_name: urls-tnt-r2
+    restart: always
+    ports:
+      - 3321:3301
+      - 3323:3303
+    volumes:
+      - ./data/urls-tnt-r2-data:/var/lib/tarantool
+    environment:
+      TARANTOOL_LISTEN: 0.0.0.0:3301
+      TARANTOOL_WAL_DIR: /var/lib/tarantool
+      TARANTOOL_MEMTX_DIR: /var/lib/tarantool
+      TARANTOOL_VINYL_DIR: /var/lib/tarantool
+      TARANTOOL_ADMIN_ADDR: 0.0.0.0:3303
+      TARANTOOL_MEMTX_MEM: 2147483648
+      TARANTOOL_IS_REPLICA: true
+      TARANTOOL_REPLICATION_PASSWORD: pa$$w0rd
       USER_PASS: dev
     build:
       dockerfile: build/urls-tnt.Dockerfile

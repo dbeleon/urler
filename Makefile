@@ -36,3 +36,23 @@ test:
 	if [ -f "k6/result/${TEST}.json" ] ; then rm -f k6/result/${TEST}.json ; fi && \
 	if [ -f "k6/export/${TEST}.json" ] ; then rm -f k6/export/${TEST}.json ; fi && \
 	k6 run -u ${USR} -d ${DUR} --summary-export=k6/export/${TEST}.json --out json=k6/result/${TEST}.json k6/${TEST}.js
+
+
+
+test_many_get_rare_make: TEST = many_get_rare_make
+test_many_get_rare_make: test2
+
+test_many_get_many_make: TEST = many_get_many_make
+test_many_get_many_make: test2
+
+test2: getshorts
+	mkdir -p k6/result/ k6/export && \
+	if [ -f "k6/result/${TEST}.json" ] ; then rm -f k6/result/${TEST}.json ; fi && \
+	if [ -f "k6/export/${TEST}.json" ] ; then rm -f k6/export/${TEST}.json ; fi && \
+	k6 run --summary-export=k6/export/${TEST}.json --out json=k6/result/${TEST}.json k6/${TEST}.js
+
+urlstntconsole:
+	tt connect 127.0.0.1:3303 -u admin -p dev
+
+getshorts:
+	curl -o k6/shorts.json http://localhost:8000/v1/shorts?limit=10000000&offset=0

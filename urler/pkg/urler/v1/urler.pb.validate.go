@@ -732,3 +732,209 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetUrlResponseValidationError{}
+
+// Validate checks the field values on GetShortsRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetShortsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetShortsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetShortsRequestMultiError, or nil if none found.
+func (m *GetShortsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetShortsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Limit
+
+	// no validation rules for Offset
+
+	if len(errors) > 0 {
+		return GetShortsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetShortsRequestMultiError is an error wrapping multiple validation errors
+// returned by GetShortsRequest.ValidateAll() if the designated constraints
+// aren't met.
+type GetShortsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetShortsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetShortsRequestMultiError) AllErrors() []error { return m }
+
+// GetShortsRequestValidationError is the validation error returned by
+// GetShortsRequest.Validate if the designated constraints aren't met.
+type GetShortsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetShortsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetShortsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetShortsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetShortsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetShortsRequestValidationError) ErrorName() string { return "GetShortsRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetShortsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetShortsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetShortsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetShortsRequestValidationError{}
+
+// Validate checks the field values on GetShortsResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetShortsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetShortsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetShortsResponseMultiError, or nil if none found.
+func (m *GetShortsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetShortsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetShortsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetShortsResponseMultiError is an error wrapping multiple validation errors
+// returned by GetShortsResponse.ValidateAll() if the designated constraints
+// aren't met.
+type GetShortsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetShortsResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetShortsResponseMultiError) AllErrors() []error { return m }
+
+// GetShortsResponseValidationError is the validation error returned by
+// GetShortsResponse.Validate if the designated constraints aren't met.
+type GetShortsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetShortsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetShortsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetShortsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetShortsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetShortsResponseValidationError) ErrorName() string {
+	return "GetShortsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetShortsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetShortsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetShortsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetShortsResponseValidationError{}
