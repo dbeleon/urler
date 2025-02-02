@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/dbeleon/urler/libs/interceptors"
+	"github.com/dbeleon/urler/libs/metrics/grpc/servermetrics"
 
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
@@ -18,6 +19,7 @@ func New() *server {
 	s := grpc.NewServer(
 		grpc.UnaryInterceptor(
 			grpcMiddleware.ChainUnaryServer(
+				servermetrics.Interceptor(),
 				interceptors.LoggingInterceptor,
 				interceptors.ValidatingInterceptor,
 			),
