@@ -13,6 +13,7 @@ import (
 
 	"github.com/dbeleon/urler/libs/grpc/grpcserver"
 	"github.com/dbeleon/urler/libs/log"
+	"github.com/dbeleon/urler/libs/metrics"
 	"github.com/dbeleon/urler/urler/internal/config"
 	"github.com/dbeleon/urler/urler/internal/domain"
 	queue "github.com/dbeleon/urler/urler/internal/queue/tnt"
@@ -36,6 +37,12 @@ func main() {
 
 	log.Init(cfg.Env == evnDevel)
 	log.Info("app started")
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	serviceMetrics := metrics.New(cfg.Metrics.Address)
+	defer serviceMetrics.Close(ctx)
 
 	tntConf := tnt.Config{
 		Address:       cfg.UrlsTntDB.Address,
@@ -83,9 +90,6 @@ func main() {
 			log.Fatal("failed to serve", zap.Error(err))
 		}
 	}()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	mux := runtime.NewServeMux(runtime.WithForwardResponseOption(svc.ResponseHeaderMatcher))
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}

@@ -18,6 +18,7 @@ type Config struct {
 	HTTPServer      `yaml:"http_server"`
 	UrlsTntDB       `yaml:"urls_tnt"`
 	QRTntQueue      `yaml:"qr_tnt"`
+	Metrics         `yaml:"metrics"`
 }
 
 type HTTPServer struct {
@@ -69,4 +70,8 @@ func MustLoad() *Config {
 	}
 
 	return &cfg
+}
+
+type Metrics struct {
+	Address string `yaml:"address" env-default:":8888`
 }
