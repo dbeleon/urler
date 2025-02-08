@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dbeleon/urler/libs/log"
+	"github.com/dbeleon/urler/libs/metrics"
 	"github.com/dbeleon/urler/notifier/internal/config"
 	"github.com/dbeleon/urler/notifier/internal/domain"
 	queue "github.com/dbeleon/urler/notifier/internal/queue/tnt"
@@ -20,6 +21,12 @@ const (
 
 func main() {
 	cfg := config.MustLoad()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	serviceMetrics := metrics.New(cfg.Metrics.Address)
+	defer serviceMetrics.Close(ctx)
 
 	log.Init(cfg.Env == evnDevel)
 	log.Info("app started")
@@ -46,7 +53,7 @@ func main() {
 
 	<-quit
 
-	ctxOut, shutdown := context.WithTimeout(context.Background(), time.Duration(cfg.ShutdownTimeout)*time.Second)
+	ctxOut, shutdown := context.WithTimeout(ctx, time.Duration(cfg.ShutdownTimeout)*time.Second)
 	defer shutdown()
 
 	log.Info("app exiting gracefully")

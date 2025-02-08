@@ -11,14 +11,15 @@ import (
 const defaultConfigPath = "/etc/urler/config.yaml"
 
 type Config struct {
-	Env             string `yaml:"env" env-default:"prod"`
-	Host            string `yaml:"host" env-default:"urler"`
-	ShutdownTimeout int    `yaml:"shutdown_timeout" env-default:"5"`
-	GRPCServer      `yaml:"grpc_server"`
-	HTTPServer      `yaml:"http_server"`
-	UrlsTntDB       `yaml:"urls_tnt"`
-	QRTntQueue      `yaml:"qr_tnt"`
-	Metrics         `yaml:"metrics"`
+	Env             string      `yaml:"env" env-default:"prod"`
+	Host            string      `yaml:"host" env-default:"urler"`
+	ShutdownTimeout int         `yaml:"shutdown_timeout" env-default:"5"`
+	UrlTntDBs       []UrlsTntDB `yaml:"urls_tnts"`
+
+	GRPCServer `yaml:"grpc_server"`
+	HTTPServer `yaml:"http_server"`
+	QRTntQueue `yaml:"qr_tnt"`
+	Metrics    `yaml:"metrics"`
 }
 
 type HTTPServer struct {

@@ -44,14 +44,17 @@ func main() {
 	serviceMetrics := metrics.New(cfg.Metrics.Address)
 	defer serviceMetrics.Close(ctx)
 
-	tntConf := tnt.Config{
-		Address:       cfg.UrlsTntDB.Address,
-		Reconnect:     time.Duration(cfg.UrlsTntDB.Reconnect) * time.Second,
-		MaxReconnects: cfg.UrlsTntDB.MaxReconnects,
-		User:          cfg.UrlsTntDB.User,
-		Password:      cfg.UrlsTntDB.Password,
+	tntConfs := make([]tnt.Config, 0, len(cfg.UrlTntDBs))
+	for _, c := range cfg.UrlTntDBs {
+		tntConfs = append(tntConfs, tnt.Config{
+			Address:       c.Address,
+			Reconnect:     time.Duration(c.Reconnect) * time.Second,
+			MaxReconnects: c.MaxReconnects,
+			User:          c.User,
+			Password:      c.Password,
+		})
 	}
-	tntClient := tnt.New(tntConf)
+	tntClient := tnt.New(tntConfs)
 
 	queueConf := queue.Config{
 		Address:       cfg.QRTntQueue.Address,

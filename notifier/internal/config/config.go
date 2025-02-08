@@ -14,6 +14,7 @@ type Config struct {
 	Env             string `yaml:"env" env-default:"prod"`
 	ShutdownTimeout int    `yaml:"shutdown_timeout" env-default:"5"`
 	TntQueue        `yaml:"queue_tnt"`
+	Metrics         `yaml:"metrics"`
 }
 
 type TntQueue struct {
@@ -50,4 +51,8 @@ func MustLoad() *Config {
 	}
 
 	return &cfg
+}
+
+type Metrics struct {
+	Address string `yaml:"address" env-default:":8888`
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dbeleon/urler/libs/log"
+	"github.com/dbeleon/urler/libs/metrics"
 	"github.com/dbeleon/urler/qrer/internal/config"
 	"github.com/dbeleon/urler/qrer/internal/domain"
 	"github.com/dbeleon/urler/qrer/internal/qr"
@@ -23,16 +24,26 @@ const (
 func main() {
 	cfg := config.MustLoad()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	serviceMetrics := metrics.New(cfg.Metrics.Address)
+	defer serviceMetrics.Close(ctx)
+
 	log.Init(cfg.Env == evnDevel)
 	log.Info("app started")
 
-	tntConf := tnt.Config{
-		Address:       cfg.UrlsTntDB.Address,
-		Reconnect:     time.Duration(cfg.UrlsTntDB.Reconnect) * time.Second,
-		MaxReconnects: cfg.UrlsTntDB.MaxReconnects,
-		User:          cfg.UrlsTntDB.User,
-		Password:      cfg.UrlsTntDB.Password,
+	tntConfs := make([]tnt.Config, 0, len(cfg.UrlTntDBs))
+	for _, c := range cfg.UrlTntDBs {
+		tntConfs = append(tntConfs, tnt.Config{
+			Address:       c.Address,
+			Reconnect:     time.Duration(c.Reconnect) * time.Second,
+			MaxReconnects: c.MaxReconnects,
+			User:          c.User,
+			Password:      c.Password,
+		})
 	}
+	tntClient := tnt.New(tntConfs)
 
 	queueConf := queue.Config{
 		Address:       cfg.QRTntQueue.Address,
@@ -44,7 +55,7 @@ func main() {
 	}
 
 	conf := domain.Options{
-		Repo:  tnt.New(tntConf),
+		Repo:  tntClient,
 		Queue: queue.New(queueConf),
 		QR:    qr.New(),
 	}
@@ -58,7 +69,7 @@ func main() {
 
 	<-quit
 
-	ctxOut, shutdown := context.WithTimeout(context.Background(), time.Duration(cfg.ShutdownTimeout)*time.Second)
+	ctxOut, shutdown := context.WithTimeout(ctx, time.Duration(cfg.ShutdownTimeout)*time.Second)
 	defer shutdown()
 
 	log.Info("app exiting gracefully")

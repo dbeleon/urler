@@ -14,6 +14,7 @@ import (
 	"github.com/dbeleon/urler/libs/log"
 	"github.com/tarantool/go-iproto"
 	"github.com/tarantool/go-tarantool/v2"
+	"github.com/tarantool/go-tarantool/v2/pool"
 )
 
 const (
@@ -26,37 +27,47 @@ const (
 // Client connects to tarantool
 // TODO: retry, models convert
 type Client struct {
-	conf Config
-	conn *tarantool.Connection
+	confs    []Config
+	connPool *pool.ConnectionPool
 }
 
-func New(conf Config) *Client {
+func New(confs []Config) *Client {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	dialer := tarantool.NetDialer{
-		Address:  conf.Address,
-		User:     conf.User,
-		Password: conf.Password,
-	}
-	opts := tarantool.Opts{
-		Timeout:       2 * time.Second,
-		Reconnect:     conf.Reconnect,
-		MaxReconnects: uint(conf.MaxReconnects),
+
+	var instances []pool.Instance
+	for _, conf := range confs {
+		opts := tarantool.Opts{
+			Timeout:       2 * time.Second,
+			Reconnect:     conf.Reconnect,
+			MaxReconnects: uint(conf.MaxReconnects),
+		}
+		log.Info("tnt instance", zap.String("name", conf.Address))
+		inst := pool.Instance{
+			Name: conf.Address,
+			Dialer: tarantool.NetDialer{
+				Address:  conf.Address,
+				User:     conf.User,
+				Password: conf.Password,
+			},
+			Opts: opts,
+		}
+		instances = append(instances, inst)
 	}
 
-	conn, err := tarantool.Connect(ctx, dialer, opts)
+	connPool, err := pool.Connect(ctx, instances)
 	if err != nil {
-		log.Fatal("Connection refused:", zap.String("address", conf.Address), zap.Error(err))
+		log.Fatal("Tnt connection refused:", zap.Error(err))
 	}
 
 	return &Client{
-		conf: conf,
-		conn: conn,
+		confs:    confs,
+		connPool: connPool,
 	}
 }
 
 func (c *Client) Close() {
-	c.conn.Close()
+	c.connPool.CloseGraceful()
 }
 
 func (c *Client) AddUser(usr dom.User) (*dom.User, error) {
@@ -64,7 +75,7 @@ func (c *Client) AddUser(usr dom.User) (*dom.User, error) {
 		Name:  usr.Name,
 		Email: usr.Email,
 	}
-	res := c.conn.Do(tarantool.NewCall17Request(FuncAddUser).Args([]interface{}{data}))
+	res := c.connPool.Do(tarantool.NewCall17Request(FuncAddUser).Args([]interface{}{data}), pool.RW)
 	var ans []*mdl.UserResponse
 	err := res.GetTyped(&ans)
 	if err != nil {
@@ -93,7 +104,7 @@ func (c *Client) SaveUrl(url dom.Url) (*dom.Url, error) {
 		Short: url.Short,
 	}
 
-	res := c.conn.Do(tarantool.NewCall17Request(FuncAddUrl).Args([]interface{}{data}))
+	res := c.connPool.Do(tarantool.NewCall17Request(FuncAddUrl).Args([]interface{}{data}), pool.RW)
 	var ans []*mdl.UrlResponse
 	err := res.GetTyped(&ans)
 	if err != nil {
@@ -127,7 +138,7 @@ func (c *Client) GetUrl(short string) (*dom.Url, error) {
 	data := &mdl.Url{
 		Short: short,
 	}
-	res := c.conn.Do(tarantool.NewCall17Request(FuncGetUrl).Args([]interface{}{data}))
+	res := c.connPool.Do(tarantool.NewCall17Request(FuncGetUrl).Args([]interface{}{data}), pool.PreferRO)
 	var ans []*mdl.UrlResponse
 	err := res.GetTyped(&ans)
 	if err != nil {
@@ -156,7 +167,7 @@ func (c *Client) GetShorts(limit int64, offset int64) ([]string, error) {
 		Limit:  limit,
 		Offset: offset,
 	}
-	res := c.conn.Do(tarantool.NewCall17Request(FuncGetShorts).Args([]interface{}{data}))
+	res := c.connPool.Do(tarantool.NewCall17Request(FuncGetShorts).Args([]interface{}{data}), pool.RO)
 	var ans []*mdl.ShortsResponse
 	err := res.GetTyped(&ans)
 	if err != nil {

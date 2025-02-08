@@ -11,10 +11,12 @@ import (
 const defaultConfigPath = "/etc/qrer/config.yaml"
 
 type Config struct {
-	Env             string `yaml:"env" env-default:"prod"`
-	ShutdownTimeout int    `yaml:"shutdown_timeout" env-default:"5"`
-	UrlsTntDB       `yaml:"urls_tnt"`
-	QRTntQueue      `yaml:"qr_tnt"`
+	Env             string      `yaml:"env" env-default:"prod"`
+	ShutdownTimeout int         `yaml:"shutdown_timeout" env-default:"5"`
+	UrlTntDBs       []UrlsTntDB `yaml:"urls_tnts"`
+
+	QRTntQueue `yaml:"qr_tnt"`
+	Metrics    `yaml:"metrics"`
 }
 
 type UrlsTntDB struct {
@@ -59,4 +61,8 @@ func MustLoad() *Config {
 	}
 
 	return &cfg
+}
+
+type Metrics struct {
+	Address string `yaml:"address" env-default:":8888`
 }

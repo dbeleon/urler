@@ -46,3 +46,14 @@ if os.getenv('TARANTOOL_ADMIN_ADDR') then
     require('console').listen(os.getenv('TARANTOOL_ADMIN_ADDR'))
     log.info('admin console addr: %s', os.getenv('TARANTOOL_ADMIN_ADDR'))
 end
+
+local metrics = require('metrics')
+local prometheus = require('metrics.plugins.prometheus')
+
+metrics.cfg{}
+metrics.enable_default_metrics()
+metrics.set_global_labels{alias = 'my-tnt-app'}
+
+local httpd = require('http.server').new('0.0.0.0', 3380)
+httpd:route( { path = '/metrics' }, prometheus.collect_http)
+httpd:start()

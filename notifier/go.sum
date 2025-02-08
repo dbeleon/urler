@@ -43,12 +43,6 @@ github.com/vmihailenco/msgpack/v5 v5.3.5 h1:5gO0H1iULLWGhs2H5tbAHIZTV8/cYafcFOr9
 github.com/vmihailenco/msgpack/v5 v5.3.5/go.mod h1:7xyJ9e+0+9SaZT0Wt1RGleJXzli6Q/V5KbhBonMG9jc=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=
 github.com/vmihailenco/tagparser/v2 v2.0.0/go.mod h1:Wri+At7QHww0WTrCBeu4J6bNtoV6mEfg5OIWRZA9qds=
-github.com/yeqown/go-qrcode/v2 v2.2.5-0.20250101101152-a2f3943410a2 h1:mepnTm+/JebtVhjXgM/y3pTU4FzcFKXFrBXUaxPkY3U=
-github.com/yeqown/go-qrcode/v2 v2.2.5-0.20250101101152-a2f3943410a2/go.mod h1:uHpt9CM0V1HeXLz+Wg5MN50/sI/fQhfkZlOM+cOTHxw=
-github.com/yeqown/go-qrcode/writer/compressed v1.0.1-0.20250101101152-a2f3943410a2 h1:62lhl53ptSeRonAD30i6tJArNFFVyFiqy7MKSnTU218=
-github.com/yeqown/go-qrcode/writer/compressed v1.0.1-0.20250101101152-a2f3943410a2/go.mod h1:YeX05jSHTFPdMG6C+qb4NTcvtmRazZfUFskLHYxz454=
-github.com/yeqown/reedsolomon v1.0.0 h1:x1h/Ej/uJnNu8jaX7GLHBWmZKCAWjEJTetkqaabr4B0=
-github.com/yeqown/reedsolomon v1.0.0/go.mod h1:P76zpcn2TCuL0ul1Fso373qHRc69LKwAw/Iy6g1WiiM=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
 go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=

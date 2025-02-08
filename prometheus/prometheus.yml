@@ -1,0 +1,47 @@
+global:
+  scrape_interval: 2s
+  scrape_timeout: 2s
+  evaluation_interval: 1s # Evaluate rules
+
+rule_files:
+  - "alerts.yml"
+
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets:
+      - "alertmanager:9099"
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+  - job_name: "urler"
+    scrape_interval: 5s
+    static_configs:
+      - targets: 
+        - "urler-1:8880"
+        - "urler-2:8880"
+        - "urler-3:8880"
+  - job_name: "qrer"
+    scrape_interval: 5s
+    static_configs:
+      - targets: 
+        - "qrer-1:8880"
+        - "qrer-2:8880"
+  - job_name: "notifier"
+    scrape_interval: 5s
+    static_configs:
+      - targets: 
+        - "notifier-1:8880"
+        - "notifier-2:8880"
+  - job_name: "url-tnt"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - "urls-tnt-m:3380"
+        - "urls-tnt-r1:3380"
+        - "urls-tnt-r2:3380"
+ 

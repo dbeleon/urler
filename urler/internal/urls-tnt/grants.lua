@@ -14,6 +14,7 @@ exports.makegrants = function(user, role, password)
     box.session.su('admin')
     box.schema.user.create(user, { password = password, if_not_exists = true })
     box.schema.user.grant(user, 'execute', 'role', role, { if_not_exists = true })
+    box.schema.user.grant(user, 'execute', 'universe', nil, { if_not_exists = true })
 end
 
 exports.devrole = function(interface)

@@ -11,3 +11,6 @@ queue_tnt:
   ttl: 0
   delay: 0
   ttr: 300
+
+metrics:
+  address: ":8880"
