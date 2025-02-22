@@ -19,9 +19,9 @@ export const options = {
     scenarios: {
         constant_request_rate: {
             executor: 'constant-arrival-rate',
-            rate: 20000,
+            rate: 10000,
             timeUnit: '1s',
-            duration: '30s',
+            duration: '60000s',
             preAllocatedVUs: 200, // how large the initial pool of VUs would be
             maxVUs: 300, // if the preAllocatedVUs are not enough, we can initialize more
         },

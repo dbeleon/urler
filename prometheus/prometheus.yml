@@ -44,4 +44,9 @@ scrape_configs:
         - "urls-tnt-m:3380"
         - "urls-tnt-r1:3380"
         - "urls-tnt-r2:3380"
+  - job_name: "queue-tnt"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - "queue-tnt:3380"
  

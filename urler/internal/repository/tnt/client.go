@@ -8,6 +8,7 @@ import (
 
 	dom "github.com/dbeleon/urler/urler/internal/domain/models"
 	"github.com/dbeleon/urler/urler/internal/repository"
+	mtrcs "github.com/dbeleon/urler/urler/internal/repository/metrics/tnt"
 	mdl "github.com/dbeleon/urler/urler/internal/repository/tnt/models"
 	"go.uber.org/zap"
 
@@ -111,6 +112,8 @@ func (c *Client) SaveUrl(url dom.Url) (*dom.Url, error) {
 		log.Error("tnt save url failed", zap.Error(err), zap.String("url", url.Long), zap.String("short", url.Short))
 		var tntErr tarantool.Error
 		if errors.As(err, &tntErr) && tntErr.Code == iproto.ER_TUPLE_FOUND {
+			mtrcs.CollisionsCounter.WithLabelValues().Inc()
+
 			return nil, repository.ErrShortUrlCollision
 		}
 

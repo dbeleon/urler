@@ -3,7 +3,6 @@ package domain
 import (
 	"context"
 	"errors"
-	"math/rand"
 
 	"github.com/avast/retry-go/v4"
 	"github.com/dbeleon/urler/libs/log"
@@ -19,8 +18,7 @@ var (
 )
 
 const (
-	SaveUrlAttempts = 5
-	HashSize        = 8
+	HashSize = 8
 )
 
 func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, error) {
@@ -31,27 +29,20 @@ func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, e
 		Long:  long,
 		Short: hash[offset:HashSize],
 	}
-	collisionAttempts := len(hash) + 1 - HashSize
+	collisionAttempts := uint(len(hash) + 1 - HashSize)
 	var res *models.Url
 	err := retry.Do(
 		func() error {
 			var err error
+			urlModel.Short = hash[offset:HashSize]
 			res, err = m.repo.SaveUrl(urlModel)
-			for collisionAttempts > 0 {
-				if errors.Is(err, repository.ErrShortUrlCollision) {
-					collisionAttempts--
-					offset++
-					urlModel.Short = hash[offset:HashSize]
-					res, err = m.repo.SaveUrl(urlModel)
-					continue
-				}
-
-				break
+			if errors.Is(err, repository.ErrShortUrlCollision) {
+				offset++
 			}
 
 			return err
 		},
-		retry.Attempts(SaveUrlAttempts),
+		retry.Attempts(collisionAttempts),
 		retry.OnRetry(func(n uint, err error) {
 			log.Info("retrying to save url", zap.Int("attempt", int(n)), zap.Error(err),
 				zap.String("long", urlModel.Long), zap.String("short", urlModel.Short))
@@ -83,17 +74,4 @@ func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, e
 	}
 
 	return res.Short, nil
-}
-
-func GenHash(size int) string {
-	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-		"abcdefghijklmnopqrstuvwxyz" +
-		"0123456789")
-
-	b := make([]rune, size)
-	for i := range b {
-		b[i] = chars[rand.Intn(len(chars))]
-	}
-
-	return string(b)
 }

@@ -52,7 +52,7 @@ local prometheus = require('metrics.plugins.prometheus')
 
 metrics.cfg{}
 metrics.enable_default_metrics()
-metrics.set_global_labels{alias = 'my-tnt-app'}
+-- metrics.set_global_labels{alias = 'my-tnt-app'}
 
 local httpd = require('http.server').new('0.0.0.0', 3380)
 httpd:route( { path = '/metrics' }, prometheus.collect_http)

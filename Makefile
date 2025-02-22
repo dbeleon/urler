@@ -55,7 +55,7 @@ urlstntconsole:
 	tt connect 127.0.0.1:3303 -u admin -p dev
 
 getshorts:
-	curl -o k6/shorts.json http://localhost:8000/v1/shorts?limit=10000000&offset=0
+	curl -o k6/shorts.json http://localhost:8000/v1/shorts?limit=100000&offset=0
 
 docker-cmds:
 	docker logs urler-2 -f 2>&1 | grep ERR -A 2
