@@ -9,6 +9,7 @@ import (
 	"github.com/dbeleon/urler/libs/log"
 	"github.com/dbeleon/urler/urler/internal/domain/models"
 	"github.com/dbeleon/urler/urler/internal/repository"
+	"github.com/dbeleon/urler/urler/internal/tiny"
 	"go.uber.org/zap"
 )
 
@@ -18,18 +19,19 @@ var (
 )
 
 const (
-	SaveUrlAttempts   = 5
-	CollisionAttempts = 5
+	SaveUrlAttempts = 5
+	HashSize        = 8
 )
 
 func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, error) {
-	hashSize := 8
+	hash := tiny.Get(long)
+	offset := 0
 	urlModel := models.Url{
 		User:  user,
 		Long:  long,
-		Short: GenHash(hashSize),
+		Short: hash[offset:HashSize],
 	}
-	collisionAttempts := CollisionAttempts
+	collisionAttempts := len(hash) + 1 - HashSize
 	var res *models.Url
 	err := retry.Do(
 		func() error {
@@ -38,7 +40,8 @@ func (m *Model) MakeUrl(ctx context.Context, user int64, long string) (string, e
 			for collisionAttempts > 0 {
 				if errors.Is(err, repository.ErrShortUrlCollision) {
 					collisionAttempts--
-					urlModel.Short = GenHash(hashSize)
+					offset++
+					urlModel.Short = hash[offset:HashSize]
 					res, err = m.repo.SaveUrl(urlModel)
 					continue
 				}
